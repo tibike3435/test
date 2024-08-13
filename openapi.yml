@@ -1,0 +1,1964 @@
+openapi: 3.0.3
+info:
+  title: ADL Doc Manager API
+  description: The OpenAPI specification of the ADL Doc Manager microservice
+  version: 1.0.1
+servers:
+  - url: /docm/v1.0
+tags:
+  - name: documents
+    description: All possible operations with documents
+  - name: authorities
+    description: All possible operations with authorities
+  - name: languages
+    description: All possible operations with languages
+  - name: tasks
+    description: Tasks status and result retrieval operations
+  - name: 'Subscription Packages'
+    description: All possible operations with subscription packages
+  - name: 'Named Packages'
+    description: All possible operations with Named Packages
+  - name: 'not-implemented'
+    description: Endpoints that are not implemented yet
+paths:
+  /languages:
+    get:
+      tags:
+        - languages
+      summary: Loads the defined languages
+      description: Loads the defined languages
+      operationId: getLanguages
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Language'
+  /authorities:
+    get:
+      tags:
+        - authorities
+      summary: Loads the defined authorities
+      description: Loads the defined authorities
+      operationId: getAuthorities
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Authority'
+  /authority-types:
+    get:
+      tags:
+        - 'not-implemented'
+      summary: Loads the defined authority types
+      description: Loads the defined authority types
+      operationId: getAuthorityTypes
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AuthorityType'
+  /document-types:
+    get:
+      tags:
+        - 'not-implemented'
+      summary: Loads the defined document types
+      description: Loads the defined document types
+      operationId: getDocumentTypes
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DocumentType'
+  /documents:
+    get:
+      tags:
+        - 'documents'
+      summary: Loads the documents matching the specified query
+      description: Loads the documents matching the specified query
+      operationId: getDocuments
+      parameters:
+        - name: offset
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: authority
+          in: query
+          description: Specifies the authority code
+          schema:
+            type: string
+            pattern: '^[a-zA-Z]{2}$'
+        - name: authorityType
+          in: query
+          description: Specifies the authority type
+          schema:
+            $ref: '#/components/schemas/AuthorityType'
+        - name: language
+          in: query
+          description: Specifies the language two-letter code according ISO 639
+          schema:
+            type: string
+            pattern: '^[a-zA-Z]{2}$'
+        - name: effAtDate
+          in: query
+          description: 'Specifies the date used to verify the effectiveness of the documents on this particular date and has the following format: yyyy-MM-dd.'
+          schema:
+            type: string
+            format: date
+        - name: effDateStart
+          in: query
+          description: 'Specifies the start date that is used as the beginning of the search interval and has the following format: yyyy-MM-dd.'
+          schema:
+            type: string
+            format: date
+        - name: effDateEnd
+          in: query
+          description: 'Specifies the end date that is used as the end of the search interval and has the following format: yyyy-MM-dd.'
+          schema:
+            type: string
+            format: date
+        - name: effUntilDate
+          in: query
+          description: 'Specifies the date which is used to perform a search that retrieves documents with effective end ts before the given date and has the following format: yyyy-MM-dd.'
+          schema:
+            type: string
+            format: date
+        - name: responsible
+          in: query
+          description: Specifies the responsible user's username
+          schema:
+            type: string
+            maxLength: 100
+        - name: heading
+          in: query
+          description: Specifies the string that is used to perform a full text search in the heading
+          schema:
+            type: string
+            maxLength: 300
+        - name: filename
+          in: query
+          description: Specifies the string that is used to perform a search for filenames
+          schema:
+            type: string
+            maxLength: 100
+        - name: publicationState
+          in: query
+          description: Specifies the publication state of the document
+          schema:
+            $ref: '#/components/schemas/PublicationState'
+        - name: documentType
+          in: query
+          description: Specifies the document type
+          schema:
+            $ref: '#/components/schemas/ProductType'
+        - name: isAirac
+          in: query
+          description: Specifies whether the documents represent AIRAC information. In such cases documents effDateStart shall be an AIRAC date.
+          schema:
+            type: boolean
+        - name: part
+          in: query
+          description: Specifies a list of part data that the searched document must have
+          schema:
+            $ref: '#/components/schemas/Part'
+        - name: section
+          in: query
+          description: Specifies the section
+          schema:
+            type: string
+            maxLength: 32
+        - name: remark
+          in: query
+          description: Specifies the remark
+          schema:
+            type: string
+            maxLength: 200
+        - name: numberYear
+          in: query
+          description: Specifies the numberYear
+          schema:
+            type: string
+        - name: relatedNotam
+          in: query
+          description: Specifies the relatedNotam
+          schema:
+            type: array
+            items:
+              type: string
+            example:
+              - B%/21
+              - A1234/24
+        - name: isChecklist
+          in: query
+          description: Specifies if the document is checklist
+          schema:
+            type: boolean
+        - name: endText
+          in: query
+          description: Specifies the endText
+          schema:
+            type: string
+            maxLength: 200
+        - name: series
+          in: query
+          description: Specifies the series
+          schema:
+            type: string
+            maxLength: 1
+            minLength: 1
+        - name: changeStartTs
+          in: query
+          description: Specifies the start timestamp which is the beginning of the interval for search when the document version was last modified. The expected format is yyyy-MM-ddTHH:mm:ss+SSSXXX.
+          schema:
+            type: string
+            format: date-time
+        - name: changeEndTs
+          in: query
+          description: Specifies the end timestamp which is the end of the interval for search when the document version was last modified. If not specified, the default value will be NOW. The expected format is yyyy-MM-ddTHH:mm:ss+SSSXXX.
+          schema:
+            type: string
+            format: date-time
+        - name: textSearch
+          in: query
+          description: Specifies a search text that should be present in the document content. Trailing wildcards are supported by using the '%' symbol (when calling the API directly this symbol should be provided with the URI encoded value, i.e. '%25')
+          schema:
+            type: string
+          example: example%25
+        - name: sortAsc
+          in: query
+          description: When provided the results will be sorted ascending by the given field name. Only one sort order parameter can be provided at once. The accepted field names are 'fileName', 'effDateStart', 'numberYear', 'heading', 'lastChanged', 'part', 'section', 'publicationState', 'isAirac', 'relatedNotam', 'series', 'responsible', 'endText' or 'effDateEnd'.
+          schema:
+            type: string
+          example: series
+        - name: sortDesc
+          in: query
+          description: When provided the results will be sorted descending by the given field name. Only one sort order parameter can be provided at once. The accepted field names are 'fileName', 'effDateStart', 'numberYear', 'heading', 'lastChanged', 'part', 'section', 'publicationState', 'isAirac', 'relatedNotam', 'series', 'responsible', 'endText' or 'effDateEnd'.
+          schema:
+            type: string
+          example: responsible
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginatedResult"
+                  - type: object
+                    properties:
+                      records:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/DocumentRecord'
+                required:
+                  - count
+                  - previous
+                  - next
+                  - records
+    post:
+      tags:
+        - documents
+      summary: Creates a document
+      description: Creates a document
+      operationId: createDocument
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                documentContent:
+                  type: string
+                  format: binary
+                document:
+                  $ref: '#/components/schemas/DocumentCreate'
+      responses:
+        '201':
+          description: Successful operation
+          headers:
+            Location:
+              schema:
+                type: string
+                description: Contains an URL to the created document
+        '400':
+          description: Invalid input
+    delete:
+      tags:
+        - documents
+      summary: Cancel documents
+      description: Cancel PRE-PUBLISHED document versions with the given identifiers
+      operationId: cancelDocuments
+      parameters:
+        - name: documentId
+          in: query
+          description: A list of document ids, this list must have the same size as the version ID list, they will be paired by their index (i.e. the first document ID will be paired with the first version ID and so on)
+          schema:
+            type: array
+            items:
+              type: number
+          example:
+            - 1
+            - 2
+        - name: versionId
+          in: query
+          description: A list of version ids (see the description of the documentId param for more information)
+          schema:
+            type: array
+            items:
+              type: number
+          example:
+            - 1050
+            - 1051
+      responses:
+        '204':
+          description: Operation was successful and the Document Versions with the given identifers were cancelled
+        '404':
+          description: Some or all of the given document and version ids are not associated with any existing document versions. This status code will also be returned when something else than an integer number is provided for one of the documentId or versionId values
+        '410':
+          description: Some or all of the given document and version ids are associated with cancelled document versions
+        '400':
+          description: No document version identifiers provided or there is a mismatch in the number of documentIds and versionIds provided. This status code will also be returned when at least one of the identifiers provided is associated with a Document Version that was already published
+  /documents/{documentId}/versions/{versionId}:
+    get:
+      tags:
+        - documents
+      summary: Loads the document version with the given versionId associated with the given documentId
+      description: Loads the document version with the given versionId associated with the given documentId
+      operationId: getDocumentVersionById
+      parameters:
+        - $ref: '#/components/parameters/DocumentId'
+        - $ref: '#/components/parameters/VersionId'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentRetrieve'
+        '404':
+          description: There is no document version having the given versionId that is associated with the givenDocumentId
+        '410':
+          description: The document version with the given versionId is cancelled
+    put:
+      tags:
+        - documents
+      summary: Updates the metadata of the document with the given versionId associated with the given documentId
+      description: Updates the metadata of the document with the given versionId associated with the given documentId
+      operationId: updateDocumentMetadata
+      parameters:
+        - $ref: '#/components/parameters/DocumentId'
+        - $ref: '#/components/parameters/VersionId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentVersionMetadataUpdate'
+      responses:
+        '200':
+          description: Successful operation
+        '404':
+          description: There is no document version having the given versionId that is associated with the givenDocumentId
+        '410':
+          description: The document version with the given versionId is cancelled
+  /documents/{documentId}/versions:
+    get:
+      tags:
+        - documents
+      summary: Loads the effective document version associated with the specified documentId
+      description: Loads the effective document version associated with the specified documentId
+      operationId: getEffectiveDocumentVersion
+      parameters:
+        - $ref: '#/components/parameters/DocumentId'
+        - $ref: '#/components/parameters/EffDateStart'
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentRetrieve'
+        '400':
+          description: The effStartDate parameter was not provided or is an invalid date
+        '404':
+          description: There is no document version effective at the given date
+        '410':
+          description: The document versions effective at the given date was cancelled
+    put:
+      tags:
+        - documents
+      summary: Updates the file and metadata of the document with the specified documentId
+      description: Updates the file and metadata of the document with the specified documentId
+      operationId: updateDocument
+      parameters:
+        - $ref: '#/components/parameters/DocumentId'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                metadata:
+                  $ref: '#/components/schemas/DocumentVersionUpdate'
+              required:
+                - file
+                - metadata
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentRetrieve'
+        '400':
+          description: Invalid input
+        '404':
+          description: The document with the specified ID is not found
+        '410':
+          description: The document with the specified ID is cancelled
+  /documents/{documentId}/versions/{versionId}/content:
+    get:
+      tags:
+        - documents
+      summary: Loads the content of the specified document
+      description: Loads the content of the specified document
+      operationId: getDocumentContent
+      parameters:
+        - $ref: '#/components/parameters/DocumentId'
+        - $ref: '#/components/parameters/VersionId'
+        - name: download
+          in: query
+          description: 'Specifies if the document should be downloaded or the binary data should be used to display the content in a browser. If not specified, the default value is false. '
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Disposition:
+              description: This header is present only if the `download` query parameter is true
+              schema:
+                type: string
+                description: The value is `attachment; filename="<documentName>.pdf"`
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: The document with the specified versionId associated with the specified documentId is not found
+        '410':
+          description: The document version with the given versionId is cancelled
+  /documents/{documentId}/history:
+    get:
+      tags:
+        - 'not-implemented'
+      summary: Loads the history of a specified document
+      description: Loads the history of a specified document
+      operationId: getHistory
+      parameters:
+        - $ref: '#/components/parameters/DocumentId'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/History'
+  /documents/{documentId}/statistics:
+    get:
+      tags:
+        - 'not-implemented'
+      summary: Loads the statistics of a specified document
+      description: Loads the statistics of a specified document
+      operationId: getStatistics
+      parameters:
+        - $ref: '#/components/parameters/DocumentId'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Statistics'
+  /documents/_publish:
+    post:
+      tags:
+        - documents
+      summary: Publish document versions
+      description: Publish one or multiple document versions, making them switch status from PRE_PUBLISHED to PUBLISHED
+      operationId: publishDocuments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Publish'
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: Returned in case of invalid input, the detailed description of invalidity is included in the response body
+  /documents/_withdraw:
+    post:
+      tags:
+        - documents
+      summary: Withdraw one or multiple documents at a specified date
+      description: Withdraw one or multiple documents at a specified date
+      operationId: withdrawDocuments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Withdraw'
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: Invalid input
+  /documents/_lock:
+    post:
+      tags:
+        - 'not-implemented'
+      summary: Lock one or multiple documents
+      description: Lock one or multiple documents
+      operationId: lockDocuments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: integer
+                format: int64
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: Invalid input
+  /documents/_unlock:
+    post:
+      tags:
+        - 'not-implemented'
+      summary: Unlock one or multiple documents
+      description: Unlock one or multiple documents
+      operationId: unlockDocuments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: integer
+                format: int64
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: Invalid input
+  /documents/adhoc-package:
+    get:
+      tags:
+        - documents
+      summary: Trigger Adhoc Package Generation
+      description: Trigger the generation of a zip archive containing all the document files associated with the provided document and version ids
+      operationId: triggerAdhocPackageGeneration
+      parameters:
+        - name: documentId
+          in: query
+          description: A list of document ids, this list must have the same size as the version ID list, they will be paired by their index (i.e. the first document ID will be paired with the first version ID and so on)
+          schema:
+            type: array
+            items:
+              type: number
+          example:
+            - 1
+            - 2
+        - name: versionId
+          in: query
+          description: A list of version ids (see the description of the documentId param for more information)
+          schema:
+            type: array
+            items:
+              type: number
+          example:
+            - 1050
+            - 1051
+      responses:
+        '202':
+          description: Adhoc Package generation task was prepared for processing. For retrieving the status of the task the GET /tasks/{taskUuid}/status endpoint can be used and for retrieving the result the GET /tasks/{taskUuid}/result endpoint can be used
+          headers:
+            Location:
+              schema:
+                type: string
+                description: The path for the GET /tasks/{taskUuid}/status endpoint containing the UUID of the task associated with the Adhoc Package Generation operation
+        '404':
+          description: Some or all of the given document and version ids are not associated with any existing document versions. This status code will also be returned when something else than an integer number is provided for one of the documentId or versionId values
+        '410':
+          description: Some or all of the given document and version ids are associated with cancelled document versions
+        '400':
+          description: No document version identifiers provided or there is a mismatch in the number of documentIds and versionIds provided
+  /documents/latest:
+    get:
+      tags:
+        - 'documents'
+      summary: Loads the latest published documents ( publicationState=PUBLISHED ) matching the specified query
+      description: Loads the documents matching the specified query
+      operationId: getLatestDocuments
+      parameters:
+        - name: offset
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: authority
+          in: query
+          description: Specifies the authority code
+          schema:
+            type: string
+            pattern: '^[a-zA-Z]{2}$'
+        - name: authorityType
+          in: query
+          description: Specifies the authority type
+          schema:
+            $ref: '#/components/schemas/AuthorityType'
+        - name: language
+          in: query
+          description: Specifies the language two-letter code according ISO 639
+          schema:
+            type: string
+            pattern: '^[a-zA-Z]{2}$'
+        - name: publicationDate
+          in: query
+          description: 'Specifies the publication Date format: yyyy-MM-dd.'
+          schema:
+            type: string
+            format: date
+        - name: heading
+          in: query
+          description: Specifies the string that is used to perform a full text search in the heading
+          schema:
+            type: string
+            maxLength: 300
+        - name: documentType
+          in: query
+          description: Specifies the document type
+          schema:
+            $ref: '#/components/schemas/ProductType'
+        - name: isAirac
+          in: query
+          description: Specifies whether the documents represent AIRAC information. In such cases documents effDateStart shall be an AIRAC date.
+          schema:
+            type: boolean
+        - name: part
+          in: query
+          description: Specifies a list of part data that the searched document must have
+          schema:
+            $ref: '#/components/schemas/Part'
+        - name: section
+          in: query
+          description: Specifies the section
+          schema:
+            type: string
+            maxLength: 32
+        - name: numberYear
+          in: query
+          description: Specifies the numberYear
+          schema:
+            type: string
+        - name: relatedNotam
+          in: query
+          description: Specifies the relatedNotam
+          schema:
+            type: array
+            items:
+              type: string
+            example:
+              - B%/21
+              - A1234/24
+        - name: series
+          in: query
+          description: Specifies the series
+          schema:
+            type: string
+            maxLength: 1
+            minLength: 1
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginatedResult"
+                  - type: object
+                    properties:
+                      records:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/DocumentRecord'
+                required:
+                  - count
+                  - previous
+                  - next
+                  - records
+  /documents/export:
+    get:
+      tags:
+        - 'not-implemented'
+      summary: Trigger Documents Export generation
+      description: Trigger the generation of a zip archive containing all the document files matching the provided filter criteria
+      operationId: triggerDocumentExportGeneration
+      parameters:
+        - name: effectiveDate
+          in: query
+          description: The effective date (with format yyyy-MM-dd) of the Documents that will be exported
+          required: true
+          schema:
+            type: string
+            format: date
+          example: 2024-03-13
+        - name: authority
+          in: query
+          description: The ID of the authority owning the Documents that will be exported
+          required: true
+          schema:
+            type: number
+            format: integer
+          example: 1
+      responses:
+        '202':
+          description: Document Export generation task was prepared for processing. For retrieving the status of the task the GET /tasks/{taskUuid}/status endpoint can be used and for retrieving the result the GET /tasks/{taskUuid}/result endpoint can be used
+          headers:
+            Location:
+              schema:
+                type: string
+                description: The path for the GET /tasks/{taskUuid}/status endpoint containing the UUID of the task associated with the Document Export Generation operation
+  /tasks/{taskUuid}/status:
+    get:
+      tags:
+        - tasks
+      summary: Retrieve Task status
+      description: Retrieve the status and additional metadata for a task
+      operationId: getTaskStatus
+      parameters:
+        - name: taskUuid
+          in: path
+          description: The UUID of the task for which the status will be retrieved
+          required: true
+          schema:
+            type: string
+          example: 05c710f1-85d5-4cc4-90d5-db451c42fe50
+      responses:
+        '200':
+          description: Operation was successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskStatus'
+        '404':
+          description: The task with the given UUID does not exist
+  /tasks/{taskUuid}/result:
+    get:
+      tags:
+        - tasks
+      summary: Retrieve Task result
+      description: Retrieve the result of a finished task
+      operationId: getTaskResult
+      parameters:
+        - name: taskUuid
+          in: path
+          description: The UUID of the task for which the result will be retrieved
+          required: true
+          schema:
+            type: string
+          example: 05c710f1-85d5-4cc4-90d5-db451c42fe50
+      responses:
+        '200':
+          description: Operation was successful
+          headers:
+            Content-Disposition:
+              schema:
+                type: string
+                description: Contains the name of the file resulting after executing the task - `attachment; filename=<name_of_the_file>`
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: The task with the given UUID is not finished yet
+        '404':
+          description: The task with the given UUID does not exist
+
+  /subscription-packages:
+    get:
+      tags:
+        - 'Subscription Packages'
+      summary: Loads subscription packages
+      description: Loads all subscription packages, serves as a facade over the named-package and subscription entities (probably will be based on the access token and it will retrieve all of the subscriptions associated with the current user)
+      operationId: getAllSubscriptionPackages
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SubscriptionPackage'
+    post:
+      tags:
+        - 'Subscription Packages'
+      summary: Creates a subscription package
+      description: Creates a named package and a subscription that together represent a subscription package
+      operationId: createSubscriptionPackage
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUpdateSubscriptionPackage'
+      responses:
+        '201':
+          description: Successful operation
+        '400':
+          description: Invalid input
+    delete:
+      tags:
+        - 'Subscription Packages'
+      summary: Bulk Delete Subscription Packages
+      description: Deletes all the Named Packages with the given ids as well as all related subscriptions
+      operationId: bulkDeleteSubscriptionPackages
+      parameters:
+        - $ref: '#/components/parameters/SubscriptionPackageIds'
+      responses:
+        '204':
+          description: Successful operation
+        '400':
+          description: Invalid input
+  /subscription-packages/{subscriptionPackageId}:
+    get:
+      tags:
+        - 'Subscription Packages'
+      summary: Loads the subscription package with the given ID
+      description: Loads the subscription package with the given ID
+      operationId: getSubscriptionPackageById
+      parameters:
+        - $ref: '#/components/parameters/SubscriptionPackageId'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionPackage'
+        '404':
+          description: There is no named package having the given subscriptionPackageId
+    put:
+      tags:
+        - 'Subscription Packages'
+      summary: Updates the subscription package associated with the given ID
+      description: Updates the underlying named package and/or subscription
+      operationId: updatnSubscriptionPackage
+      parameters:
+        - $ref: '#/components/parameters/SubscriptionPackageId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUpdateSubscriptionPackage'
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: Invalid input
+        '404':
+          description: There is no subscription package having the given subscriptionPackageId
+    delete:
+      tags:
+        - 'Subscription Packages'
+      summary: Deletes the subscription package associated with the given ID
+      description: Deletes the named package and its subscription with the given ID
+      operationId: deleteSubscriptionPackage
+      parameters:
+        - $ref: '#/components/parameters/SubscriptionPackageId'
+      responses:
+        '204':
+          description: Successful operation
+        '404':
+          description: There is no named package having the given subscriptionPackageId
+  /named-packages/download:
+    get:
+      tags:
+        - 'Named Packages'
+      summary: Trigger Named Package Generation
+      description: Trigger the generation of a zip archive containing all the document files associated with the provided namedPackageId
+      operationId: downloadNamedPackage
+      parameters:
+        - $ref: '#/components/parameters/NamedPackageId'
+        - $ref: '#/components/parameters/X-Adl-Client-Id'
+      responses:
+        '202':
+          description: Named Package generation task was prepared for processing. For retrieving the status of the task the GET /tasks/{taskUuid}/status endpoint can be used and for retrieving the result the GET /tasks/{taskUuid}/result endpoint can be used
+          headers:
+            Location:
+              schema:
+                type: string
+                description: the path for the GET /tasks/{taskUuid}/status endpoint containing the UUID of the task associated with the Named Package Generation operation
+        '404':
+          description: there is no named package having the given namedPackageId
+components:
+  parameters:
+    DocumentId:
+      name: documentId
+      in: path
+      description: The ID of a document
+      required: true
+      schema:
+        type: integer
+        format: int64
+      example: 1
+    VersionId:
+      name: versionId
+      in: path
+      description: The ID of a document version
+      required: true
+      schema:
+        type: integer
+        format: int64
+      example: 1050
+    NamedPackageId:
+      name: namedPackageId
+      in: query
+      description: The ID of a named package
+      required: true
+      schema:
+        type: array
+        items:
+          type: integer
+          format: int64
+      example:
+        - 1
+        - 2
+    X-Adl-Client-Id:
+      name: x-adl-client-id
+      in: header
+      description: ID used to identify the client that originated the request (usually an UUID)
+      required: true
+      schema:
+        type: string
+      example: 993e2ac0-857b-4b7c-a4b1-5ab7bb182a9c
+    SubscriptionPackageId:
+      name: subscriptionPackageId
+      in: path
+      description: The ID of a subscription package, its value set equals to the named package id value set
+      required: true
+      schema:
+        type: integer
+        format: int64
+      example: 1
+    SubscriptionPackageIds:
+      name: subscriptionPackageId
+      in: query
+      description: The IDs of subscription packages, their values equals to the named package IDs values
+      required: true
+      schema:
+        type: array
+        items:
+          type: integer
+          format: int64
+      example:
+        - 1
+        - 2
+    If-Match:
+      name: If-Match
+      in: header
+      description: Its value originates in the `ETag` header which was received upon a GET request. It makes the given HTTP method conditional because it is only going to be executed if the provided value matches with the stored entity's ETag.
+      schema:
+        type: string
+      required: true
+    EffDateStart:
+      name: effDateStart
+      in: query
+      description: The date when the document version should be effective in ISO format (yyyy-MM-dd)
+      required: true
+      schema:
+        type: string
+        format: yyyy-MM-dd
+      example: '2024-04-10'
+    SubscriptionId:
+      name: subscriptionId
+      in: path
+      description: The ID of a subscription
+      required: true
+      schema:
+        type: integer
+        example: 1050
+    NamedPackageIds:
+      name: namedPackageId
+      in: query
+      description: A list of Named Package IDs
+      required: true
+      schema:
+        type: array
+        items:
+          type: integer
+          format: int64
+      example:
+        - 1
+        - 2
+  headers:
+    ETag:
+      description: Identifier for a specific version of a resource
+      schema:
+        type: string
+      required: true
+  schemas:
+    Language:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        fullname:
+          type: string
+          maxLength: 50
+          example: 'Azerbaijani'
+        abbreviation:
+          type: string
+          maxLength: 2
+          example: 'AZ'
+      required:
+        - id
+        - fullname
+        - abbreviation
+    Authority:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 3
+        fullname:
+          type: string
+          maxLength: 100
+          example: 'Algeria'
+        code:
+          type: string
+          maxLength: 2
+          example: 'DA'
+      required:
+        - id
+        - fullname
+        - code
+      description: >
+        Supported authorities:
+        * Albania (LA)
+        * Georgia (UG)
+        * Austria (LO)
+        * Azerbaijan (UB)
+        * Belgium (EB)
+        * Bosnia/Herzeg. (LQ)
+        * Bulgaria (LB)
+        * Croatia (LD)
+        * Cyprus (LC)
+        * Czech Republic (LK)
+        * Denmark (EK)
+        * Estonia (EE)
+        * Finland (EF)
+        * France (LF)
+        * Germany (ED)
+        * Greece (LG)
+        * Greenland (BG)
+        * Hungary (LH)
+        * Iceland (BI)
+        * Ireland (EI)
+        * Italy (LI)
+        * Latvia (EV)
+        * Lithuania (EY)
+        * Malta (LM)
+        * Moldova (LU)
+        * Netherlands (EH)
+        * Norway (EN)
+        * Poland (EP)
+        * Portugal (LP)
+        * Romania (LR)
+        * Slovakia (LZ)
+        * Slovenia (LJ)
+        * Spain (LE)
+        * Sweden (ES)
+        * Switzerland (LS)
+        * Republic of North Macedonia (LW)
+        * Turkiye (LT)
+        * Ukraine (UK)
+        * United Kingdom (EG)
+        * Serbia / Montenegro (LY)
+        * Faroe Islands (XX)
+        * Armenia (UD)
+        * Finland (EF)
+        * Germany/AFSBW (ET)
+        * Hungary (LH)
+        * Italy (LI)
+        * Netherlands (EH)
+        * Poland (EP)
+        * Denmark (EK)
+        * Poland (EP)
+        * Serbia / Montenegro (LY)
+        * KFOR SECTOR (BK)
+        * Philippines (RP)
+        * Jordan (OJ)
+        * Morocco (GM)
+        * Israel (LL)
+        * Kazakhstan (UA)
+        * Kyrgyzstan (UC)
+        * Afghanistan (OA)
+        * Algeria (DA)
+        * Egypt (HE)
+        * Japan (RJ)
+        * Iraq (OR)
+        * Lebanon (OL)
+        * Libya (HL)
+        * Saudi Arabia (OE)
+        * Syria (OS)
+        * Uzbekistan (UT)
+        * Cape Verde (GV)
+        * ASECNA (AS)
+        * Czech Republic (LK)
+        * Qatar (OT)
+    PaginatedResult:
+      type: object
+      properties:
+        count:
+          type: number
+          example: 119
+        next:
+          type: string
+          description: Link to the next chunk
+        previous:
+          type: string
+          description: Link to the previous chunk
+        records:
+          type: array
+          items: { }
+    AuthorityType:
+      type: string
+      enum:
+        - C
+        - M
+        - V
+      description: >
+        Enum indicating the authority type:
+        * C - Civil
+        * M - Military
+        * V - VFR
+      example: 'M'
+    DocumentType:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        productType:
+          $ref: '#/components/schemas/ProductType'
+        description:
+          type: string
+          maxLength: 100
+      required:
+        - id
+        - productType
+        - description
+    Statistics:
+      type: object
+      properties:
+        lastAccessUser:
+          type: string
+        lastAccessDate:
+          type: string
+          format: date-time
+      required:
+        - lastAccessUser
+        - lastAccessDate
+    ProductType:
+      type: string
+      enum:
+        - AIP
+        - AMENDMENT
+        - AIP_SUPPLEMENT
+        - AIC
+        - CHART
+        - EAIS_PACKAGE
+    PublicationState:
+      type: string
+      enum:
+        - PRE_PUBLISHED
+        - PUBLISHED
+    Part:
+      type: array
+      items:
+        type: string
+        enum:
+          - GEN
+          - ENR
+          - AD
+        uniqueItems: true
+      example: [ 'ENR' ]
+    DocumentCreate:
+      type: object
+      properties:
+        documentId:
+          type: integer
+          format: int64
+          description: The ID of the document which is shared among different versions. It is null in case that the document does not have previous versions.
+        chainId:
+          type: integer
+          format: int64
+        authorityType:
+          $ref: '#/components/schemas/AuthorityType'
+        authority:
+          type: string
+          pattern: '^[a-zA-Z]{2}$'
+          description: The authority code of an existing authority
+        effStartDate:
+          type: string
+          format: date
+          description: The expected format is yyyy-MM-dd
+        effEndDate:
+          type: string
+          format: date
+          description: The expected format is yyyy-MM-dd
+        effEndText:
+          type: string
+          maxLength: 200
+          description: A text reasoning the end date
+        language:
+          type: string
+          pattern: '^[a-zA-Z]{2}$'
+          description: The language code of an existing language
+        scanned:
+          type: boolean
+          description: Marks whether the uploaded file is a scanned document or not. By default this is false.
+        section:
+          type: string
+          maxLength: 32
+          description: The section to which the document belongs to
+        heading:
+          type: string
+          maxLength: 300
+          description: The heading of the document
+        remark:
+          type: string
+          maxLength: 200
+          description: Additional comments
+        responsible:
+          type: string
+          maxLength: 100
+          description: The responsible user's username. If it is not specified, the creator user will be used as responsible.
+        isAirac:
+          type: boolean
+          description: ''
+        isChecklist:
+          type: boolean
+          description: ''
+        parts:
+          $ref: '#/components/schemas/Part'
+        documentType:
+          $ref: '#/components/schemas/ProductType'
+        relatedNotams:
+          type: array
+          items:
+            type: string
+            pattern: '[A-Z]\d{4}/\d{2}'
+            example: 'A2345/12'
+        numberYear:
+          type: string
+          pattern: '\d{2}/\d{4}'
+          example: '11/2024'
+        series:
+          type: string
+          maxLength: 1
+          minLength: 1
+      required:
+        - authorityType
+        - authority
+        - effStartDate
+        - language
+        - heading
+        - remark
+        - isAirac
+        - documentType
+      example:
+        documentId: 1
+        chainId: 1
+        authorityType: 'C'
+        authority: 'LR'
+        effStartDate: '2024-03-13'
+        effEndDate: '9999-12-31'
+        language: 'EN'
+        scanned: false
+        section: 'example section'
+        heading: 'example heading'
+        remark: 'example remark'
+        responsible: 'user123'
+        isAirac: true
+        documentType: 'AIP'
+        parts:
+          - ENR
+    DocumentRetrieve:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: The ID of the version of the document
+        documentId:
+          type: integer
+          format: int64
+          description: The ID of the document which is shared among different versions.
+        previousVersionId:
+          type: integer
+          format: int64
+          description: The ID of the previous version of the document. It is null in case that the document does not have previous versions.
+        chainId:
+          type: integer
+          format: int64
+        authorityType:
+          type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+            type:
+              $ref: '#/components/schemas/AuthorityType'
+          required:
+            - id
+            - type
+        authority:
+          $ref: '#/components/schemas/Authority'
+        effStartDate:
+          type: string
+          format: date
+          description: The expected format is yyyy-MM-dd
+        effEndDate:
+          type: string
+          format: date
+          description: The expected format is yyyy-MM-dd
+        effEndText:
+          type: string
+          maxLength: 200
+          description: Contains an explanation for the effective end date
+        publicationDate:
+          type: string
+          format: date
+        name:
+          type: string
+          maxLength: 100
+          description: Contains the generated name of the document
+        pageCount:
+          type: integer
+          description: The page count of the uploaded file
+        language:
+          $ref: '#/components/schemas/Language'
+        section:
+          type: string
+          maxLength: 32
+          description: The section to which the document belongs to
+        heading:
+          type: string
+          maxLength: 300
+          description: The heading of the document
+        remark:
+          type: string
+          maxLength: 200
+          description: Additional comments
+        responsible:
+          type: string
+          maxLength: 100
+          description: The responsible user for the given document
+        publicationState:
+          $ref: '#/components/schemas/PublicationState'
+        isAirac:
+          type: boolean
+          description: Specifies whether the documents represent AIRAC information. In such cases documents effDateStart shall be an AIRAC date.
+        isChecklist:
+          type: boolean
+          description: ''
+        creationTs:
+          type: string
+          format: date-time
+          description: The creation timestamp of the document. The expected format is yyyy-MM-ddTHH:mm:ss+SSSXXX.
+        updateTs:
+          type: string
+          format: date-time
+          description: The timestamp of the last update. The expected format is yyyy-MM-ddTHH:mm:ss+SSSXXX.
+        isLocked:
+          type: boolean
+          description: Marks the lock status of the document
+        parts:
+          $ref: '#/components/schemas/Part'
+        numberYear:
+          type: string
+          pattern: '\d{2}/\d{4}'
+          example: '11/2024'
+        relatedNotams:
+          type: array
+          items:
+            type: string
+            pattern: '\d{5}/\d{2}'
+            example: '12345/12'
+        series:
+          type: string
+          maxLength: 1
+          minLength: 1
+      required:
+        - id
+        - documentId
+        - authorityType
+        - authority
+        - effStartDate
+        - effEndDate
+        - effEndText
+        - name
+        - pageCount
+        - language
+        - heading
+        - remark
+        - responsible
+        - publicationState
+        - isAirac
+        - creationDate
+        - updateDate
+        - isLocked
+      example:
+        id: 1050
+        documentId: 1
+        chainId: 1
+        authorityType: 'M'
+        authority:
+          id: 3
+          code: DA
+          fullName: Algeria
+        documentType: 'AIP'
+        effStartDate: '2024-03-13'
+        effEndDate: '9999-12-31'
+        publicationDate: '2024-03-03'
+        name: DA_ENR_test_bg.pdf
+        pageCount: 10
+        language:
+          id: 2
+          code: BG
+          fullName: Bulgarian
+        section: example section
+        heading: example heading
+        remark: example remark
+        responsible: responsible_user
+        publicationState: PRE_PUBLISHED
+        isAirac: false
+        creationTs: '2024-02-13T15:39:59.435506Z'
+        updateTs: '2024-02-13T15:40:00.920748Z'
+        isLocked: false
+        parts:
+          - ENR
+    DocumentVersionMetadataUpdate:
+      type: object
+      properties:
+        language:
+          type: string
+          pattern: '^[a-zA-Z]{2}$'
+          description: The language code of an existing language
+        section:
+          maxLength: 300
+          type: string
+        heading:
+          maxLength: 300
+          type: string
+        remark:
+          maxLength: 200
+          type: string
+        responsible:
+          maxLength: 100
+          type: string
+        isAirac:
+          type: boolean
+      example:
+        language: 'EN'
+        section: 'example update section'
+        heading: 'example update heading'
+        remark: 'example update remark'
+        responsible: 'example_update_responsible'
+        isAirac: true
+    DocumentVersionUpdate:
+      type: object
+      properties:
+        effStartDate:
+          type: string
+          format: date
+          description: The expected format is yyyy-MM-dd
+        language:
+          type: string
+          pattern: '^[a-zA-Z]{2}$'
+          description: The language code of an existing language
+        section:
+          maxLength: 300
+          type: string
+        heading:
+          maxLength: 300
+          type: string
+        remark:
+          maxLength: 200
+          type: string
+        responsible:
+          maxLength: 100
+          type: string
+        isAirac:
+          type: boolean
+      required:
+        - effStartDate
+      example:
+        effStartDate: '2024-05-10'
+        language: 'EN'
+        section: 'example update section'
+        heading: 'example update heading'
+        remark: 'example update remark'
+        responsible: 'example_update_responsible'
+        isAirac: true
+    DocumentRecord:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: The ID of the version of the document
+        authorityType:
+          $ref: '#/components/schemas/AuthorityType'
+        authority:
+          $ref: '#/components/schemas/Authority'
+        effDate:
+          type: string
+          format: date
+          description: The expected format is yyyy-MM-dd
+        name:
+          type: string
+          maxLength: 100
+          description: Contains the generated name of the document
+        language:
+          $ref: '#/components/schemas/Language'
+        heading:
+          type: string
+          maxLength: 300
+          description: The heading of the document
+        associatedPackage:
+          type: string
+          maxLength: 300
+          description: The package in which the original file was uploaded
+        isAirac:
+          type: boolean
+          description: Belong or not to a AIRAC cycle.
+        updateDate:
+          type: string
+          format: date
+          description: The expected format is yyyy-MM-dd
+        status:
+          type: string
+          enum:
+            - STANDARD
+            - LOCKED
+            - INVALID
+        uri:
+          type: string
+          format: uri-reference
+          description: Represents an URI to an endpoint which returns more information about the given document.
+        documentType:
+          $ref: '#/components/schemas/ProductType'
+        part:
+          $ref: '#/components/schemas/Part'
+        relatedNotam:
+          type: string
+          description: Specifies the relatedNotam series
+        series:
+          type: string
+          description: Returns the series
+        numberYear:
+          type: string
+          description: Return the airac number/year
+        publicationDate:
+          type: string
+          format: date
+          description: The expected format is yyyy-MM-dd
+      required:
+        - id
+        - authorityType
+        - authority
+        - effDate
+        - name
+        - language
+        - heading
+        - associatedPackage
+        - isAirac
+        - updateDate
+        - status
+        - uri
+        - documentType
+        - part
+    History:
+      type: object
+      properties:
+        changeType:
+          type: string
+          maxLength: 50
+        lastUpdaterUser:
+          type: string
+        organizationUnit:
+          type: string
+        lastChangedDate:
+          type: string
+          format: date-time
+      required:
+        - changeType
+        - lastChangedDate
+        - lastUpdaterUser
+        - organizationUnit
+    Withdraw:
+      type: object
+      properties:
+        withdrawDate:
+          type: string
+          format: date
+          description: The expected format is yyyy-MM-dd
+        documentIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+          uniqueItems: true
+      required:
+        - withdrawDate
+        - documentIds
+      example:
+        withdrawDate: '2024-03-11'
+        documentIds:
+          - 1
+          - 2
+    Publish:
+      type: object
+      properties:
+        documents:
+          type: array
+          items:
+            type: object
+            properties:
+              documentId:
+                type: integer
+                format: int64
+              versionId:
+                type: integer
+                format: int64
+            required:
+              - documentId
+              - versionId
+          uniqueItems: true
+      required:
+        - items
+      example:
+        documents:
+          - documentId: 1000
+            versionId: 1050
+          - documentId: 1000
+            versionId: 1100
+    TaskStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - QUEUED
+            - IN_PROGRESS
+            - FAILED
+            - CANCELLED
+            - FINISHED
+          description: The status of the task
+        type:
+          type: string
+          enum:
+            - NOTIFY
+            - ADHOC_PACKAGE_DOWNLOAD
+            - NAMED_PACKAGE_DOWNLOAD
+            - EXPORT_DOWNLOAD
+            - BULK_UPLOAD
+          description: The type of task
+        startTime:
+          type: string
+          format: date-time
+          description: Timestamp representing the start time of the task
+        lastAccessTime:
+          type: string
+          format: date-time
+          description: Timestamp representing the last time work was performed on the task
+        endTime:
+          type: string
+          format: date-time
+          description: Timestamp representing the time when the task was finalized
+      example:
+        status: FINISHED
+        type: ADHOC_PACKAGE_DOWNLOAD
+        startTime: 2024-03-13T14:34:19.92Z
+        lastAccessTime: 2024-03-13T14:35:21.94Z
+        endTime: 2024-03-13T14:35:40.94Z
+
+    SubscriptionPackage:
+      type: object
+      properties:
+        subscriptionId:
+          type: integer
+          format: int64
+          description: The ID of the related subscription package
+        packageId:
+          type: integer
+          format: int64
+          description: The ID of the related named package
+        packageName:
+          type: string
+          maxLength: 100
+          description: The name of the related named package
+        packageCreationTs:
+          type: string
+          format: date-time
+          description: The creation timestamp of the subscription package. The expected format is yyyy-MM-ddTHH:mm:ss+SSSXXX.
+        updateTs:
+          type: string
+          format: date-time
+          description: The update timestamp of the subscription package. The expected format is yyyy-MM-ddTHH:mm:ss+SSSXXX.
+        documentIdsVersionIds:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentIdVersionId'
+          uniqueItems: true
+        validityStart:
+          type: string
+          format: date
+          description: The start of the validity period for the subscription package
+          example: '2024-03-19'
+        validityEnd:
+          type: string
+          format: date
+          description: The end of the validity period for the subscription package
+          example: '2025-03-19'
+        notifyInApp:
+          type: boolean
+          description: A flag indicating if the notifications for this subscription package should be sent in the ADL app
+          example: true
+        notifyByEmail:
+          type: boolean
+          description: A flag indicating if the notifications for this subscription package should be sent by email
+          example: true
+        notificationEmail:
+          type: string
+          description: The email address where the notifications will be sent if the notifyByEmail flag is set to true
+          example: 'example@example.com'
+        subscribedUser:
+          type: string
+          description: The user that owns this subscription package
+          example: 'example_user'
+        notificationType:
+          $ref: '#/components/schemas/NotificationType'
+        subscriptionTrigger:
+          $ref: '#/components/schemas/SubscriptionTrigger'
+        subscriptionCreationTs:
+          type: string
+          format: date-time
+          description: Timestamp indicating when this subscription was created
+          example: '2024-03-18T13:45:23.123456Z'
+      required:
+        - packageId
+        - packageName
+        - packageCreationTs
+        - documentIdsVersionIds
+        - updateTs
+      example:
+        subscriptionId: 1
+        packageId: 1
+        packageName: 'pck_name'
+        packageCreationTs: '2024-02-13T15:39:59.435506Z'
+        updateTs: '2024-02-13T15:39:59.435506Z'
+        documentIdsVersionsIds:
+          - documentId: 1000
+            versionId: 1050
+          - documentId: 1050
+            versionId: 1051
+        validityStart: '2024-03-19'
+        validityEnd: '2024-03-20'
+        notifyInApp: true
+        notifyByEmail: false
+        notificationEmail: "example@example.com"
+        subscribedUser: "example_user"
+        notificationType: "FULL"
+        subscriptionTrigger: "ON_PUBLICATION"
+        subscriptionCreationTs: '024-03-18T13:45:23.123456Z'
+    CreateUpdateSubscriptionPackage:
+      type: object
+      properties:
+        subscriptionId:
+          type: integer
+          format: int64
+          description: The ID of the related subscription package
+        packageId:
+          type: integer
+          format: int64
+          description: The ID of the related named package
+        packageName:
+          type: string
+          maxLength: 100
+          description: The name of the related named package
+        documentIdsVersionIds:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentIdVersionId'
+          uniqueItems: true
+        validityStart:
+          type: string
+          format: date
+          description: The start of the validity period for the subscription package
+          example: '2024-03-19'
+        validityEnd:
+          type: string
+          format: date
+          description: The end of the validity period for the subscription package
+          example: '2025-03-19'
+        notifyInApp:
+          type: boolean
+          description: A flag indicating if the notifications for this subscription package should be sent in the ADL app
+          example: true
+        notifyByEmail:
+          type: boolean
+          description: A flag indicating if the notifications for this subscription package should be sent by email
+          example: true
+        notificationEmail:
+          type: string
+          description: The email address where the notifications will be sent if the notifyByEmail flag is set to true
+          example: 'example@example.com'
+        subscribedUser:
+          type: string
+          description: The user that owns this subscription package
+          example: 'example_user'
+        notificationType:
+          $ref: '#/components/schemas/NotificationType'
+        subscriptionTrigger:
+          $ref: '#/components/schemas/SubscriptionTrigger'
+      example:
+        packageName: 'pck_name'
+        documentIdsVersionsIds:
+          - documentId: 1000
+            versionId: 1050
+          - documentId: 1050
+            versionId: 1051
+        validityStart: '2024-03-19'
+        validityEnd: '2024-03-20'
+        notifyInApp: true
+        notifyByEmail: false
+        notificationEmail: "example@example.com"
+        subscribedUser: "example_user"
+        notificationType: "FULL"
+        subscriptionTrigger: "ON_PUBLICATION"
+    DocumentIdVersionId:
+      type: object
+      properties:
+        documentId:
+          type: integer
+          format: int64
+        versionId:
+          type: integer
+          format: int64
+      required:
+        - documentId
+        - versionId
+      example:
+        - documentId: 1000
+          versionId: 1050
+    NotificationType:
+      type: string
+      enum:
+        - INCREMENTAL
+        - FULL
+      description: >
+        Enum indicating how the notifications for this subscriptions will be triggered
+        * INCREMENTAL - only the changed documents will be sent in the notification
+        * FULL - all of the documents will be sent in the notification
+      example: FULL
+    SubscriptionTrigger:
+      type: string
+      enum:
+        - ON_PUBLICATION
+        - DAILY
+        - WEEKLY
+        - MONTHLY
+      description: >
+        Enum indicating how the notifications for this subscriptions will be sent:
+        * ON_PUBLICATION - a notification will be sent when a document associated with the package is published
+        * DAILY - a notification will be sent every day
+        * WEEKLY - a notification will be sent every week
+        * MONTHLY - a notification will be sent every month
+      example: WEEKLY
+    SubscriptionRecord:
+      type: object
+      properties:
+        id:
+          type: number
+          format: int64
+          description: The ID of the subscription
+          example: 1050
+        namedPackage:
+          type: object
+          properties:
+            id:
+              type: number
+              format: int64
+              description: The ID of the namedPackage
+              example: 1
+            name:
+              type: string
+              description: The name of the namedPackage
+              example: ED_GEN
+        notifyInApp:
+          type: boolean
+          description: A flag indicating if the notifications for this subscription should be sent in the ADL app
+          example: true
+        notifyByEmail:
+          type: boolean
+          description: A flag indicating if the notifications for this subscription should be sent by email
+          example: true
+        subscriptionTrigger:
+          $ref: '#/components/schemas/SubscriptionTrigger'
